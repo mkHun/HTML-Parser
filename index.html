@@ -1,0 +1,135 @@
+<html>
+<head>
+<title>Parse checker</title>
+<link href="https://fonts.googleapis.com/css?family=Nunito|Sansita" rel="stylesheet"> 
+<link rel="stylesheet" type="text/css" href="index.css" />
+</head>
+<body>
+<div id='header'>
+
+<div style='margin-top:5px;'> <font style='font-size:25px; font-weight:bold; margin-left:130px; color: #590474;'>Parse checker</font></div>
+</div>
+<div id='body'>
+	<div class='sides' id='leftside'>
+		<div id="total_parse" style="color:red; position:absolute; right: 50px; margin-top: 3px;
+"></div>
+		<textarea type="text" name="input_box" id='input_box'></textarea>
+<br><br>
+		<input type='text' style='width:150px; margin-left:30px;'  id='tagname' placeholder='tagname'/>
+		<input type='text' style='width:100px; margin-left:10px;'  id='attr' placeholder='attr'/>
+		<input type='text' style='width:100px; margin-left:10px;'  id='attrname'  placeholder='attrname'/>
+		<input type='submit' onclick='parse_func("parse")' style='margin-left:10px;' value='parse'/>
+		<input type='submit' onclick='parse_func("parseall")' style='margin-left:10px;' value='parse all'/>
+
+	</div>
+	<div class='sides'>
+		<textarea type="text" id='parse_box'></textarea>
+		<br><br>
+		<input type='text' id='regex_box' style='width:400px; margin-left:30px;' placeholder='RegEx'/>
+		<input type='text' id='regex_flag' style='width:50px; margin-left:10px;' placeholder='Flags'/>
+		<input type='submit' style='margin-left:10px;'  onclick='regex_func()'/>
+		<div id='total_match' style='color:red; position:absolute; right: 50px; margin-top: 3px;
+'></div>
+		<div type="text" name="result_box" id='result_box' style='overflow:auto;'></div>
+	</div>
+</div>
+<script>
+function regex_func()
+{
+	var html_value = document.getElementById("parse_box").value;
+	var regex = document.getElementById("regex_box").value;
+	var flags = document.getElementById("regex_flag").value;
+	
+	var http = new XMLHttpRequest();
+	var url = "/cgi-bin/parse/regex.pl";
+	html_value = encodeURIComponent(html_value);
+	regex = encodeURIComponent(regex);
+	var params = "regex="+regex+"&flags="+flags+"&html_data="+html_value;
+	
+	http.onreadystatechange = function() { //Call a function when the state changes.
+	    if(http.readyState == 4 && http.status == 200) {
+		//alert(":)");
+		var data = http.responseText;
+		
+		total_match = data.match(/Full match(\s*\(\d+\))?/g);
+		if(total_match)
+		{
+			fin = total_match[(total_match.length-1)];
+			fin = fin.match(/\d+/);
+			if(fin)
+			{
+				document.getElementById("total_match").innerHTML="Total match "+fin;
+			}
+			else
+			{
+				document.getElementById("total_match").innerHTML="One match";
+			}
+			document.getElementById("result_box").innerHTML=data;
+		}
+		else
+		{
+			document.getElementById("total_match").innerHTML="No match";
+			document.getElementById("result_box").innerHTML="";
+		}
+	    }
+	}
+	http.open("POST", url, true);
+	http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	http.send(params);	
+
+
+}
+function parse_func(parse_get)
+{
+
+
+	var html_value = document.getElementById("input_box").value;
+	var tagname = document.getElementById("tagname").value;
+	var attr = document.getElementById("attr").value;
+	var attrname = document.getElementById("attrname").value;
+	
+	var y = document.getElementById("parse_tag");
+	if(y)
+	{
+		y.remove();
+	}
+	var just_print = "<div id='parse_tag' style='margin-left:50px; margin-top:4px;'>parse({'tag'=>'"+tagname+"','attr'=>'"+attr+"','attrname'=>'"+attrname+"','cont'=>\\$cont})</div>";
+	
+	var x = document.getElementById("leftside");
+	x.insertAdjacentHTML("beforeend",just_print);
+
+
+	var http = new XMLHttpRequest();
+
+	var url = "/cgi-bin/parse/parse.pl";
+
+	html_value = encodeURIComponent(html_value);
+
+	var params = "tagname="+tagname+"&attr="+attr+"&attrname="+attrname+"&html_data="+html_value+"&parse_method="+parse_get;
+	
+	http.onreadystatechange = function() {//Call a function when the state changes.
+	    if(http.readyState == 4 && http.status == 200) {
+		//alert(":)");
+		//alert(http.responseText);
+		var some = http.responseText;
+		datv = some.split("END#!#!");
+		
+		document.getElementById("parse_box").value=datv[0];
+		if(datv[1] != undefined)
+		{
+			document.getElementById("total_parse").innerHTML="Parse count "+datv[1];
+		}
+		else
+		{
+			document.getElementById("total_parse").innerHTML="Parse count 1";
+		}
+	    }
+	}
+	http.open("POST", url, true);
+	http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	http.send(params);	
+}
+
+</script>
+</body>
+</html>

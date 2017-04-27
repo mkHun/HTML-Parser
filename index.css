@@ -1,0 +1,47 @@
+body
+{
+	font-family: 'Nunito', sans-serif;
+	margin:0 auto;
+	background:#f3e1fc;
+}
+
+#header{
+height:40px;
+border-bottom: 2px solid #7e095b;
+}
+#body
+{
+max-width:1400px;
+min-width:1200px;
+}
+.sides
+{
+vertical-align:top;
+width:49.8%;
+height:530px;
+background:white;
+display:inline-block;
+}
+#input_box
+{
+width:600px;
+height:400px;
+margin-left:30px;
+margin-top:30px;
+}
+#parse_box
+{
+	width:600px;
+	height:150px;
+	margin-left:30px;
+	margin-top:30px;
+}
+#result_box
+{
+	width:600px;
+	height:260px;
+	margin-left:30px;
+	margin-top:30px;
+	box-shadow: 0px 0px 1px 1px #989393;
+}
+
